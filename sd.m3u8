@@ -1,7 +1,10 @@
 #EXTM3U
-#EXT-X-VERSION:3
-#EXT-X-TARGETDURATION:9
-#EXT-X-MEDIA-SEQUENCE:0
-#EXTINF:5.000,
-https://dwpomqnk.faselhdstream.com/stream/hls/4/d522ca7e2a0edd4148598d9001da4c51/,1080,720,480,360,p.mp4.urlset/seg-1-f3-v1-a1.ts
-#EXT-X-ENDLIST
+#EXT-X-VERSION:4
+#EXT-X-STREAM-INF:BANDWIDTH=488000,NAME="FPS:30.0",CODECS="avc1.42c015,mp4a.40.2",RESOLUTION=426x240
+https:\/\/edge308.stream.highwebmedia.com\/live-hls\/amlst:angelaagh-sd-3038ae441f10435a1e1f1e172e7db4025696c3dd6356c8a91bb318d771084d03_trns_h264\/chunklist_w210323254_b448000_t64RlBTOjMwLjA=.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=1258000,NAME="FPS:30.0",CODECS="avc1.4d401f,mp4a.40.2",RESOLUTION=854x480
+https:\/\/edge308.stream.highwebmedia.co\/live-hls\/amlst:angelaagh-sd-3038ae441f10435a1e1f1e172e7db4025696c3dd6356c8a91bb318d771084d03_trns_h264\/chunklist_w210323254_b1148000_t64RlBTOjMwLjA=.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=3396000,NAME="FPS:30.0",CODECS="avc1.4d401f,mp4a.40.2",RESOLUTION=1280x720
+https:\/\/edge308.stream.highwebmedia.com\/live-hls\/amlst:angelaagh-sd-3038ae441f10435a1e1f1e172e7db4025696c3dd6356c8a91bb318d771084d03_trns_h264/chunklist_w210323254_b3096000_t64RlBTOjMwLjA=.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=5628000,NAME="FPS:30.0",CODECS="avc1.640028,mp4a.40.2",RESOLUTION=1920x1080
+https:\/\/edge308.stream.highwebmedia.com/live-hls/amlst:angelaagh-sd-3038ae441f10435a1e1f1e172e7db4025696c3dd6356c8a91bb318d771084d03_trns_h264/chunklist_w210323254_b5128000_t64RlBTOjMwLjA=.m3u8
