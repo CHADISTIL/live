@@ -1,0 +1,27 @@
+<VAST version="2.0">
+<Ad>
+   <InLine>
+      <AdSystem></AdSystem>
+      <Impression>
+         <URL><![CDATA[Link-to-impression-pixel]]></URL>
+      </Impression>
+      <Creatives>
+         <Creative>
+            <Linear skipoffset="00:00:05">
+               <VideoClicks>
+                  <ClickThrough><![CDATA[Link-for-click]]></ClickThrough>
+               </VideoClicks>
+               <MediaFiles>
+                  <MediaFile delivery="progressive" type="video/mp4">
+                     <![CDATA[https://www.w3schools.com/html/mov_bbb.mp4]]>
+                  </MediaFile>
+               </MediaFiles>
+            </Linear>
+         </Creative>
+      </Creatives>
+      <Extensions>
+         <Extension type="linkTxt"><![CDATA[Go to the advertiser's website]]></Extension>
+      </Extensions>
+   </InLine>
+</Ad>
+</VAST>
