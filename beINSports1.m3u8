@@ -1,8 +1,8 @@
 #EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=400000,AVERAGE-BANDWIDTH=400000,CODECS="avc1.66.30,mp4a.40.2",RESOLUTION=640x360,FRAME-RATE=25.000,CLOSED-CAPTIONS=NONE
-https://ara.koralivetv.xyz/stream/720/hls/ts.php?url=https://prod-fastly-us-west-2.video.pscp.tv/Transcoding/v1/hls/wR6Gz2l54u8qX93m-0gyecFYlOCo38YkE6AupJTQj2hHmnfURrY2XtESYLU-y5Sz-SM4qvL6vf0xAE7e-A8DWQ/transcode/us-west-2/periscope-replay-direct-prod-us-west-2-public/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsInZlcnNpb24iOiIyIn0.eyJFbmNvZGVyU2V0dGluZyI6ImVuY29kZXJfc2V0dGluZ183MjBwMzBfMTAiLCJIZWlnaHQiOjcyMCwiS2JwcyI6Mjc1MCwiV2lkdGgiOjEyODB9.ldktM4fCFRfkP4ZEBfZPKtlAUNAcTPkoz994YJAzWpE/chunk_1642967220681879959_12131_a.ts?type=live
+https://s34.moroccan-network.football/live/tyr5vy12mfsd_SD.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=800000,AVERAGE-BANDWIDTH=800000,CODECS="avc1.66.30,mp4a.40.2",RESOLUTION=854x480,FRAME-RATE=25.000,CLOSED-CAPTIONS=NONE
-https://ara.koralivetv.xyz/stream/480/hls/1.m3u8
+https://s34.moroccan-network.football/live/tyr5vy12mfsd_HD.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1500000,AVERAGE-BANDWIDTH=1500000,CODECS="avc1.66.30,mp4a.40.2",RESOLUTION=1280x720,FRAME-RATE=25.000,CLOSED-CAPTIONS=NONE
-https://ara.koralivetv.xyz/stream/720/hls/1.m3u8
+https://s34.moroccan-network.football/live/tyr5vy12mfsd_FHD.m3u8
