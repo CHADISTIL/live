@@ -1,27 +1,36 @@
 <VAST version="2.0">
 <Ad>
-   <InLine>
-      <AdSystem></AdSystem>
-      <Impression>
-         <URL><![CDATA[Link-to-impression-pixel]]></URL>
-      </Impression>
-      <Creatives>
-         <Creative>
-            <Linear skipoffset="00:00:05">
-               <VideoClicks>
-                  <ClickThrough><![CDATA[Link-for-click]]></ClickThrough>
-               </VideoClicks>
-               <MediaFiles>
-                  <MediaFile delivery="progressive" type="video/mp4">
-                     <![CDATA[https://www.w3schools.com/html/mov_bbb.mp4]]>
-                  </MediaFile>
-               </MediaFiles>
-            </Linear>
-         </Creative>
-      </Creatives>
-      <Extensions>
-         <Extension type="linkTxt"><![CDATA[Go to the advertiser's website]]></Extension>
-      </Extensions>
-   </InLine>
+<InLine>
+<AdSystem/>
+<Impression>
+<URL>
+<![CDATA[ https://bit.ly/3u4IEaP ]]>
+</URL>
+</Impression>
+<Creatives>
+<Creative>
+<Linear skipoffset="00:00:16">
+<VideoClicks>
+<ClickThrough>
+<![CDATA[ https://bit.ly/3u4IEaP ]]>
+</ClickThrough>
+</VideoClicks>
+<MediaFiles>
+<MediaFile delivery="progressive" type="video/mp4" bitrate="1200" width="1280" height="720" minBitrate="750" maxBitrate="1200" scalable="1" maintainAspectRatio="1" codec="H.264">
+<![CDATA[ https://bit.ly/3rXUzos ]]>
+</MediaFile>
+<MediaFile delivery="progressive" type="video/mp4" bitrate="500" width="640" height="360" minBitrate="200" maxBitrate="500" scalable="1" maintainAspectRatio="1" codec="H.264">
+<![CDATA[ https://bit.ly/3KStuLS ]]>
+</MediaFile>
+</MediaFiles>
+</Linear>
+</Creative>
+</Creatives>
+<Extensions>
+<Extension type="linkTxt">
+<![CDATA[ Go to the advertiser's website ]]>
+</Extension>
+</Extensions>
+</InLine>
 </Ad>
 </VAST>
