@@ -1,0 +1,32 @@
+<VAST version="2.0">
+<Ad>
+<InLine>
+<AdSystem/>
+<Impression>
+<URL>
+<![CDATA[ https://s.click.aliexpress.com/e/_Dm3iZ3d ]]>
+</URL>
+</Impression>
+<Creatives>
+<Creative>
+<Linear skipoffset="00:00:15">
+<VideoClicks>
+<ClickThrough>
+<![CDATA[ https://forthwith.stolen4u.net/2024/01/window.html ]]>
+</ClickThrough>
+</VideoClicks>
+<MediaFiles>
+<MediaFile delivery="progressive" type="video/mp4" bitrate="1200" width="1280" height="720" minBitrate="750" maxBitrate="1200" scalable="1" maintainAspectRatio="1" codec="H.264">
+<![CDATA[ https://j.top4top.io/m_292633efb1.mp4 ]]>
+</MediaFile>
+</Linear>
+</Creative>
+</Creatives>
+<Extensions>
+<Extension type="linkTxt">
+<![CDATA[ أحصل على تخفيض يصل الى 50% إشتري الآن ]]>
+</Extension>
+</Extensions>
+</InLine>
+</Ad>
+</VAST>
