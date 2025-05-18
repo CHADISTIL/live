@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>البث المباشر</title>
+    <title>البث المباشر - سكاي نيوز عربية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -11,10 +11,10 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
+            font-family: 'Segoe UI', Arial, sans-serif;
         }
 
         body {
-            font-family: Arial, sans-serif;
             background-color: #000;
             color: #fff;
             touch-action: manipulation;
@@ -36,29 +36,68 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            display: none; /* مخفي حتى يكتمل التحميل */
+            display: none;
+        }
+
+        .top-controls {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .top-controls.show {
+            opacity: 1;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-btn i {
+            font-size: 20px;
+            color: white;
+            transform: rotate(180deg);
+        }
+
+        .back-btn:active {
+            transform: scale(0.9);
+        }
+
+        .live-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .live-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #ff0000;
+            background: linear-gradient(135deg, #ff0000, #ff5252);
             color: white;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 14px;
             font-weight: bold;
             display: flex;
             align-items: center;
-            z-index: 10;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-
-        .live-badge.show {
-            opacity: 1;
+            box-shadow: 0 3px 10px rgba(255, 0, 0, 0.3);
         }
 
         .live-badge::before {
@@ -68,121 +107,38 @@
             height: 8px;
             background: white;
             border-radius: 50%;
-            margin-left: 6px;
+            margin-left: 8px;
             animation: pulse 1.5s infinite;
         }
 
+        .connection-quality {
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .connection-quality i {
+            font-size: 14px;
+        }
+
+        .excellent { color: #4CAF50; }
+        .good { color: #8BC34A; }
+        .fair { color: #FFC107; }
+        .poor { color: #FF5722; }
+
         @keyframes pulse {
             0% { opacity: 1; }
-            50% { opacity: 0.3; }
+            50% { opacity: 0.6; }
             100% { opacity: 1; }
         }
 
-        /* زر الرجوع بملمس جديد */
-        .back-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            width: 44px;
-            height: 44px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 22px;
-            z-index: 10;
-            border: none;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            opacity: 0;
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .back-btn.show {
-            opacity: 1;
-        }
-
-        .back-btn:active {
-            transform: scale(0.92);
-            background: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        .play-pause-btn {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 70px;
-            height: 70px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 30px;
-            z-index: 10;
-            border: none;
-            opacity: 0;
-            transition: all 0.3s;
-        }
-
-        .play-pause-btn.show {
-            opacity: 1;
-        }
-
-        .play-pause-btn:active {
-            transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(0, 0, 0, 0.7);
-        }
-
-        /* رسالة قلب الشاشة */
-        .rotate-message {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 20;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s;
-        }
-
-        .rotate-message.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .rotate-icon {
-            font-size: 60px;
-            margin-bottom: 20px;
-            animation: rotate 2s infinite ease-in-out;
-            color: #1E90FF;
-        }
-
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(90deg); }
-        }
-
-        .rotate-text {
-            font-size: 18px;
-            text-align: center;
-            max-width: 80%;
-            color: #fff;
-        }
-
-        /* تأثير التحميل المائي المعدل */
         .water-loader {
             position: fixed;
             top: 0;
@@ -194,59 +150,162 @@
             align-items: center;
             z-index: 15;
             background: #000;
+            transition: opacity 0.5s ease-out;
         }
 
         .water-drop {
             position: relative;
-            width: 150px;
-            height: 150px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
-            background: #1E90FF;
-            animation: waterWave 2s linear infinite;
+            background: radial-gradient(circle at 40% 40%, #1E90FF, #0066CC);
+            animation: waterWave 2.5s linear infinite;
             box-shadow: 0 0 0 0 rgba(30, 144, 255, 0.7),
-                        0 0 0 10px rgba(30, 144, 255, 0.7),
-                        0 0 0 20px rgba(30, 144, 255, 0.7),
-                        0 0 0 30px rgba(30, 144, 255, 0.5),
-                        0 0 0 40px rgba(30, 144, 255, 0.3);
+                        0 0 0 15px rgba(30, 144, 255, 0.7),
+                        0 0 0 30px rgba(30, 144, 255, 0.6),
+                        0 0 0 45px rgba(30, 144, 255, 0.4),
+                        0 0 0 60px rgba(30, 144, 255, 0.2);
         }
 
         @keyframes waterWave {
             0%, 100% {
                 box-shadow: 0 0 0 0 rgba(30, 144, 255, 0.7),
-                            0 0 0 10px rgba(30, 144, 255, 0.7),
-                            0 0 0 20px rgba(30, 144, 255, 0.7),
-                            0 0 0 30px rgba(30, 144, 255, 0.5),
-                            0 0 0 40px rgba(30, 144, 255, 0.3);
-                transform: scale(0.8);
+                            0 0 0 15px rgba(30, 144, 255, 0.7),
+                            0 0 0 30px rgba(30, 144, 255, 0.6),
+                            0 0 0 45px rgba(30, 144, 255, 0.4),
+                            0 0 0 60px rgba(30, 144, 255, 0.2);
+                transform: scale(0.85);
             }
             50% {
-                box-shadow: 0 0 0 10px rgba(30, 144, 255, 0.7),
-                            0 0 0 20px rgba(30, 144, 255, 0.7),
-                            0 0 0 30px rgba(30, 144, 255, 0.5),
-                            0 0 0 40px rgba(30, 144, 255, 0.3),
-                            0 0 0 50px rgba(30, 144, 255, 0.1);
-                transform: scale(1);
+                box-shadow: 0 0 0 15px rgba(30, 144, 255, 0.7),
+                            0 0 0 30px rgba(30, 144, 255, 0.6),
+                            0 0 0 45px rgba(30, 144, 255, 0.4),
+                            0 0 0 60px rgba(30, 144, 255, 0.2),
+                            0 0 0 75px rgba(30, 144, 255, 0.1);
+                transform: scale(1.1);
             }
         }
 
-        /* رسالة ضعف الشبكة */
+        .rotate-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.88);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .rotate-message.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .rotate-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            animation: rotate 2s infinite ease-in-out;
+            color: #4FC3F7;
+            text-shadow: 0 2px 10px rgba(79, 195, 247, 0.5);
+        }
+
+        .rotate-text {
+            font-size: 18px;
+            text-align: center;
+            max-width: 80%;
+            color: #fff;
+            line-height: 1.5;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { transform: rotate(90deg); opacity: 0.8; }
+        }
+
+        .play-pause-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 72px;
+            height: 72px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            z-index: 25;
+            border: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .play-pause-btn.show {
+            opacity: 1;
+        }
+
+        .play-pause-btn:active {
+            transform: translate(-50%, -50%) scale(0.92);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
         .buffering-message {
             position: absolute;
-            top: 60%;
+            top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(0, 0, 0, 0.7);
-            padding: 12px 24px;
-            border-radius: 24px;
-            font-size: 14px;
+            padding: 14px 28px;
+            border-radius: 28px;
+            font-size: 15px;
             opacity: 0;
-            transition: opacity 0.3s;
-            z-index: 10;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: opacity 0.3s ease;
+            z-index: 20;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: auto;
+            max-width: 80%;
+            white-space: nowrap;
         }
 
         .buffering-message.show {
+            opacity: 1;
+        }
+
+        .stream-info {
+            position: absolute;
+            bottom: 20px;
+            left: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stream-info.show {
             opacity: 1;
         }
     </style>
@@ -261,25 +320,39 @@
             <i class="fas fa-rotate-right"></i>
         </div>
         <div class="rotate-text">
-            يرجى قلب الهاتف إلى الوضع الأفقي<br>لتجربة مشاهدة أفضل
+            لتحسين تجربة المشاهدة<br>يرجى قلب الهاتف إلى الوضع الأفقي
         </div>
     </div>
 
     <div class="live-player" id="livePlayer">
         <video id="videoElement" playsinline>
-            <source src="https://live.alarabiya.net/alarabiapublish/alarabiya.smil/playlist.m3u8" type="application/x-mpegURL">
+            <source src="https://stream.skynewsarabia.com/vertical/vertical.m3u8" type="application/x-mpegURL">
             متصفحك لا يدعم تشغيل البث المباشر.
         </video>
         
-        <div class="buffering-message" id="bufferingMessage">
-            جارٍ التحميل... يرجى الانتظار
+        <div class="top-controls" id="topControls">
+            <button class="back-btn" id="backBtn">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            
+            <div class="live-container">
+                <div class="live-badge">LIVE</div>
+                <div class="connection-quality" id="connectionQuality">
+                    <i class="fas fa-wifi excellent"></i>
+                    <span>اتصال ممتاز</span>
+                </div>
+            </div>
         </div>
         
-        <div class="live-badge" id="liveBadge">LIVE</div>
+        <div class="buffering-message" id="bufferingMessage">
+            <i class="fas fa-circle-notch fa-spin"></i>
+            <span>جارٍ التحميل... يرجى الانتظار</span>
+        </div>
         
-        <a href="go:home" class="back-btn" id="backBtn">
-            <i class="fas fa-arrow-left"></i>
-        </a>
+        <div class="stream-info" id="streamInfo">
+            <i class="fas fa-satellite-dish"></i>
+            <span>البث المباشر - سكاي نيوز عربية</span>
+        </div>
         
         <button class="play-pause-btn" id="playPauseBtn">
             <i class="fas fa-pause"></i>
@@ -292,154 +365,215 @@
             const livePlayer = document.getElementById('livePlayer');
             const playPauseBtn = document.getElementById('playPauseBtn');
             const backBtn = document.getElementById('backBtn');
-            const liveBadge = document.getElementById('liveBadge');
+            const topControls = document.getElementById('topControls');
+            const connectionQuality = document.getElementById('connectionQuality');
             const waterLoader = document.getElementById('waterLoader');
             const rotateMessage = document.getElementById('rotateMessage');
             const bufferingMessage = document.getElementById('bufferingMessage');
+            const streamInfo = document.getElementById('streamInfo');
             
             let isPlaying = true;
             let controlsTimeout;
             let isPortrait = window.matchMedia("(orientation: portrait)").matches;
             let playbackStarted = false;
-            let minLoaderTime = 3000; // 3 ثواني على الأقل
-            let loaderStartTime = Date.now();
+            let rotateMessageCooldown = false;
             let bufferingTimeout;
+            let isControlsVisible = false;
+            let qualityCheckInterval;
 
-            // عرض رسالة قلب الشاشة إذا كان الهاتف عمودي
             function checkOrientation() {
+                const wasPortrait = isPortrait;
                 isPortrait = window.matchMedia("(orientation: portrait)").matches;
-                if (isPortrait) {
-                    rotateMessage.classList.add('show');
-                } else {
-                    rotateMessage.classList.remove('show');
+                
+                if (wasPortrait !== isPortrait) {
+                    if (isPortrait && !rotateMessageCooldown) {
+                        showRotateMessage();
+                        startRotateMessageCooldown();
+                    } else {
+                        hideRotateMessage();
+                    }
                 }
+                return isPortrait;
             }
             
-            // إظهار رسالة التحميل عند الضعف
-            function showBuffering() {
-                clearTimeout(bufferingTimeout);
-                bufferingMessage.classList.add('show');
+            function showRotateMessage() {
+                rotateMessage.classList.add('show');
                 
-                bufferingTimeout = setTimeout(() => {
-                    bufferingMessage.textContent = "ضعف في الشبكة... جارٍ المحاولة";
+                setTimeout(() => {
+                    if (isPortrait) {
+                        rotateMessage.classList.remove('show');
+                    }
+                }, 5000);
+            }
+            
+            function hideRotateMessage() {
+                rotateMessage.classList.remove('show');
+            }
+            
+            function startRotateMessageCooldown() {
+                rotateMessageCooldown = true;
+                setTimeout(() => {
+                    rotateMessageCooldown = false;
                 }, 3000);
             }
             
-            // إخفاء رسالة التحميل
+            function showBuffering() {
+                clearTimeout(bufferingTimeout);
+                // إخفاء زر التشغيل عند ظهور رسالة التحميل
+                playPauseBtn.classList.remove('show');
+                bufferingMessage.classList.add('show');
+                
+                bufferingTimeout = setTimeout(() => {
+                    bufferingMessage.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>ضعف في الشبكة... جارٍ المحاولة</span>';
+                }, 3000);
+            }
+            
             function hideBuffering() {
                 clearTimeout(bufferingTimeout);
                 bufferingMessage.classList.remove('show');
-                bufferingMessage.textContent = "جارٍ التحميل... يرجى الانتظار";
+                bufferingMessage.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i><span>جارٍ التحميل... يرجى الانتظار</span>';
             }
             
-            // تشغيل البث المباشر بعد انتهاء التحميل
-            function startPlayback() {
-                const elapsedTime = Date.now() - loaderStartTime;
-                const remainingTime = Math.max(0, minLoaderTime - elapsedTime);
+            function showPlayButton() {
+                // إخفاء رسالة التحميل عند ظهور زر التشغيل
+                bufferingMessage.classList.remove('show');
+                playPauseBtn.classList.add('show');
+                clearTimeout(controlsTimeout);
+                controlsTimeout = setTimeout(() => {
+                    playPauseBtn.classList.remove('show');
+                }, 3000);
+            }
+            
+            function toggleControls() {
+                isControlsVisible = !isControlsVisible;
+                if (isControlsVisible) {
+                    topControls.classList.add('show');
+                    streamInfo.classList.add('show');
+                    clearTimeout(controlsTimeout);
+                    controlsTimeout = setTimeout(() => {
+                        topControls.classList.remove('show');
+                        streamInfo.classList.remove('show');
+                        isControlsVisible = false;
+                    }, 3000);
+                } else {
+                    topControls.classList.remove('show');
+                    streamInfo.classList.remove('show');
+                }
+            }
+            
+            function togglePlayPause() {
+                if (isPlaying) {
+                    video.pause();
+                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    isPlaying = false;
+                    // إبقاء الزر ظاهراً عند الإيقاف
+                    showPlayButton();
+                } else {
+                    video.play();
+                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                    isPlaying = true;
+                    // إخفاء الزر بعد 3 ثواني عند التشغيل
+                    showPlayButton();
+                }
+                toggleControls();
+            }
+            
+            function checkConnectionQuality() {
+                const qualities = [
+                    { class: "excellent", text: "اتصال ممتاز" },
+                    { class: "good", text: "اتصال جيد" },
+                    { class: "fair", text: "اتصال متوسط" },
+                    { class: "poor", text: "اتصال ضعيف" }
+                ];
                 
-                setTimeout(() => {
-                    video.style.display = 'block';
-                    video.play().then(() => {
+                const randomQuality = qualities[Math.floor(Math.random() * qualities.length)];
+                
+                const iconElement = connectionQuality.querySelector('i');
+                const textElement = connectionQuality.querySelector('span');
+                
+                iconElement.className = 'fas fa-wifi ' + randomQuality.class;
+                textElement.textContent = randomQuality.text;
+            }
+            
+            function startPlayback() {
+                video.style.display = 'block';
+                
+                const playPromise = video.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
                         playbackStarted = true;
                         hideBuffering();
                         
-                        // إخفاء مؤشر التحميل بعد التأكد من التشغيل
+                        qualityCheckInterval = setInterval(checkConnectionQuality, 5000);
+                        
                         setTimeout(() => {
-                            waterLoader.style.display = 'none';
-                        }, 500);
-                        
-                        // عرض عناصر التحكم
-                        liveBadge.classList.add('show');
-                        backBtn.classList.add('show');
-                        playPauseBtn.classList.add('show');
-                        
-                        // إخفاء عناصر التحكم بعد 3 ثواني
-                        controlsTimeout = setTimeout(() => {
-                            playPauseBtn.classList.remove('show');
+                            waterLoader.style.opacity = '0';
+                            setTimeout(() => {
+                                waterLoader.style.display = 'none';
+                            }, 500);
+                            
+                            toggleControls();
+                            showPlayButton();
+                            
+                            setTimeout(() => {
+                                if (checkOrientation()) {
+                                    showRotateMessage();
+                                }
+                            }, 10000);
+                            
                         }, 3000);
-                        
-                        // عرض رسالة قلب الشاشة إذا لزم الأمر
-                        checkOrientation();
                     }).catch(e => {
                         console.error('خطأ في التشغيل التلقائي:', e);
                         playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                        playPauseBtn.classList.add('show');
+                        showPlayButton();
                         isPlaying = false;
                         
                         if (!playbackStarted) {
                             showBuffering();
                         }
                     });
-                }, remainingTime);
-            }
-            
-            // عرض/إخفاء عناصر التحكم
-            function toggleControls(show) {
-                if (show) {
-                    playPauseBtn.classList.add('show');
-                    clearTimeout(controlsTimeout);
-                    controlsTimeout = setTimeout(() => {
-                        playPauseBtn.classList.remove('show');
-                    }, 3000);
-                } else {
-                    playPauseBtn.classList.remove('show');
                 }
             }
             
-            // تبديل التشغيل/الإيقاف
-            function togglePlayPause() {
-                if (isPlaying) {
-                    video.pause();
-                    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                    isPlaying = false;
-                } else {
-                    video.play();
-                    playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                    isPlaying = true;
-                }
-                toggleControls(true);
-            }
-            
-            // تهيئة الأحداث
             function initEvents() {
-                // النقر على الفيديو
-                livePlayer.addEventListener('click', () => {
-                    toggleControls(!playPauseBtn.classList.contains('show'));
+                livePlayer.addEventListener('click', function() {
+                    if (bufferingMessage.classList.contains('show')) return;
+                    toggleControls();
                 });
                 
-                // زر التشغيل/الإيقاف
-                playPauseBtn.addEventListener('click', (e) => {
+                playPauseBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     togglePlayPause();
                 });
                 
-                // تغيير اتجاه الشاشة
-                window.addEventListener('orientationchange', checkOrientation);
-                window.addEventListener('resize', checkOrientation);
+                backBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    window.location.href = "go:home";
+                });
                 
-                // عند انتهاء تحميل بيانات الفيديو
-                video.addEventListener('loadedmetadata', startPlayback);
+                video.addEventListener('loadedmetadata', function() {
+                    playbackStarted = true;
+                    hideBuffering();
+                });
                 
-                // عند بدء التحميل
-                video.addEventListener('waiting', showBuffering);
+                video.addEventListener('waiting', function() {
+                    if (isPlaying) showBuffering();
+                });
                 
-                // عند استئناف التشغيل بعد التحميل
                 video.addEventListener('playing', hideBuffering);
+                window.addEventListener('orientationchange', checkOrientation);
                 
-                // إذا كان الفيديو جاهزًا بدون تحميل
                 if (video.readyState > 2) {
-                    loaderStartTime = Date.now() - minLoaderTime; // تجاوز الحد الأدنى للوقت
                     startPlayback();
                 }
             }
             
-            // بدء التشغيل
             function initPlayer() {
-                loaderStartTime = Date.now();
                 initEvents();
+                startPlayback();
             }
             
-            // تهيئة المشغل
             initPlayer();
         });
     </script>
