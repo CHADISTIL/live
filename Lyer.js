@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-            const video = document.getElementById('mainVideo');
+            const video = document.getElementById('video');
             const videoContainer = document.getElementById('videoContainer');
             const controlsContainer = document.getElementById('controlsContainer');
             const progressContainer = document.getElementById('progressContainer');
