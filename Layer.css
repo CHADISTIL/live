@@ -1,4 +1,4 @@
- :root {
+:root {
             --primary-color: #ff375f;
             --progress-height: 8px;
             --control-height: 70px;
@@ -12,7 +12,15 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            touch-action: manipulation;
+        }
 
         .video-container {
             position: relative;
@@ -30,7 +38,7 @@
             display: block;
         }
 
-        /* شريط التقدم - معدل ليبدأ من اليسار */
+        /* شريط التقدم */
         .progress-container {
             position: absolute;
             bottom: 0;
@@ -65,7 +73,6 @@
             background: var(--primary-color);
             position: relative;
             transition: width 0.1s linear;
-            /* إزالة أي خاصية قد تجعله يبدأ من اليمين */
         }
 
         /* مؤشر الوقت عند اللمس */
@@ -130,7 +137,7 @@
             width: 100%;
         }
 
-        /* الأزرار - تم تصحيح المواقع */
+        /* الأزرار */
         .control-buttons {
             display: flex;
             align-items: center;
