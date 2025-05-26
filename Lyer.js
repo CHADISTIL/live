@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-            const video = document.getElementById('video');
+            // تغيير معرف الفيديو إلى mainVideo
+            const mainVideo = document.getElementById('mainVideo');
             const videoContainer = document.getElementById('videoContainer');
             const controlsContainer = document.getElementById('controlsContainer');
             const progressContainer = document.getElementById('progressContainer');
@@ -27,10 +28,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // تشغيل/إيقاف الفيديو بالنقر
             function togglePlay() {
-                if (video.paused) {
-                    video.play();
+                if (mainVideo.paused) {
+                    mainVideo.play();
                 } else {
-                    video.pause();
+                    mainVideo.pause();
                 }
                 showPulseEffect();
             }
@@ -63,10 +64,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     const clickPosition = (e.changedTouches[0].clientX - rect.left) / rect.width;
                     
                     if (clickPosition > 0.6) {
-                        video.currentTime += 10;
+                        mainVideo.currentTime += 10;
                         showJumpEffect(jumpForward);
                     } else if (clickPosition < 0.4) {
-                        video.currentTime = Math.max(0, video.currentTime - 10);
+                        mainVideo.currentTime = Math.max(0, mainVideo.currentTime - 10);
                         showJumpEffect(jumpBackward);
                     }
                 }
@@ -106,14 +107,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 pos = Math.max(0, Math.min(1, pos));
                 
                 // تحديث المؤشر
-                const previewTime = pos * video.duration;
+                const previewTime = pos * mainVideo.duration;
                 timePreview.textContent = formatTime(previewTime);
                 timePreview.style.left = `${pos * 100}%`;
                 previewLine.style.left = `${pos * 100}%`;
                 
                 // إذا كان المستخدم يسحب
                 if (e.type === 'mousemove' || e.type === 'touchmove') {
-                    video.currentTime = previewTime;
+                    mainVideo.currentTime = previewTime;
                 }
             }
             
@@ -157,26 +158,26 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             // تحديث الوقت
-            video.addEventListener('timeupdate', function() {
-                const progress = (video.currentTime / video.duration) * 100;
+            mainVideo.addEventListener('timeupdate', function() {
+                const progress = (mainVideo.currentTime / mainVideo.duration) * 100;
                 progressBar.style.width = `${progress}%`;
-                timeDisplay.textContent = `${formatTime(video.currentTime)} / ${formatTime(video.duration)}`;
+                timeDisplay.textContent = `${formatTime(mainVideo.currentTime)} / ${formatTime(mainVideo.duration)}`;
             });
 
             // زر كتم الصوت
             muteBtn.addEventListener('click', function() {
-                if (video.volume > 0) {
-                    video.volume = 0;
+                if (mainVideo.volume > 0) {
+                    mainVideo.volume = 0;
                     muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
                 } else {
-                    video.volume = 1;
+                    mainVideo.volume = 1;
                     muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
                 }
             });
 
             // تهيئة الوقت عند تحميل البيانات
-            video.addEventListener('loadedmetadata', function() {
-                timeDisplay.textContent = `00:00 / ${formatTime(video.duration)}`;
+            mainVideo.addEventListener('loadedmetadata', function() {
+                timeDisplay.textContent = `00:00 / ${formatTime(mainVideo.duration)}`;
             });
 
             // تنسيق الوقت (دقائق:ثواني)
@@ -190,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let controlsTimeout;
             function hideControls() {
                 controlsTimeout = setTimeout(() => {
-                    if (!video.paused) {
+                    if (!mainVideo.paused) {
                         controlsContainer.style.opacity = '0';
                         progressContainer.classList.add('hidden-controls');
                     }
@@ -206,6 +207,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             videoContainer.addEventListener('touchstart', showControls);
             videoContainer.addEventListener('mousemove', showControls);
-            video.addEventListener('play', showControls);
+            mainVideo.addEventListener('play', showControls);
             hideControls();
         });
