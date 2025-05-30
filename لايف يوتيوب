@@ -1,0 +1,3 @@
+ <button class="control-btn" id="muteBtn">
+      <i class="fas fa-volume-mute"></i>
+    </button>
