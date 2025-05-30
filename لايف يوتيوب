@@ -1,3 +1,553 @@
- <button class="control-btn" id="muteBtn">
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>فيديو يوتيوب - مع تحكمات متقدمة</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Global styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+      font-family: sans-serif;
+      touch-action: manipulation;
+    }
+
+    /* Original iframe-wrapper and player styles */
+    .iframe-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    #player {
+      position: absolute;
+      top: 50%;
+      left: 0; /* Changed from 50% to 0 for original state */
+      transform: translateY(-50%); /* Changed from translate(-50%, -50%) for original state */
+      width: 100%;
+      height: 3000px; /* Keep original height for player */
+      transition: all 0.5s ease;
+      border: none;
+    }
+
+    /* Overlay - New element covering everything, always visible, transparent */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0); /* Fully transparent */
+      z-index: 10; /* Above the iframe */
+      pointer-events: auto; /* Always clickable */
+    }
+
+    /* Controls container - now controls visibility of the actual buttons/info */
+    .controls-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 11; /* Above the overlay */
+      opacity: 0; /* Hidden by default */
+      transition: opacity 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      pointer-events: none; /* Controls are not clickable when hidden */
+    }
+
+    .controls-container.show {
+      opacity: 1;
+      pointer-events: auto; /* Controls are clickable when shown */
+    }
+
+    /* Top Controls */
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Bottom Controls */
+    .bottom-controls {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 15px;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+      gap: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* General Button Styling */
+    .control-btn {
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      color: white;
+      font-size: 18px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .control-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* Back Button */
+    .back-btn {
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .back-btn i {
+        font-size: 20px;
+        color: white;
+        transform: rotate(180deg);
+    }
+
+    .back-btn:active {
+        transform: scale(0.9);
+    }
+
+    /* Live Badge & Connection Quality - RTL and swapped */
+    .live-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        /* Ensure content inside these is RTL */
+        direction: rtl; /* Apply RTL to the container itself */
+    }
+
+    .live-badge {
+        background: linear-gradient(135deg, #ff0000, #ff5252);
+        color: white;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 3px 10px rgba(255, 0, 0, 0.3);
+        direction: rtl; /* Explicitly set for content */
+    }
+
+    .live-badge::before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: white;
+        border-radius: 50%;
+        margin-left: 8px; /* Changed to margin-left for RTL flow */
+        margin-right: 0; /* Remove previous margin-right */
+        animation: pulse 1.5s infinite;
+    }
+
+    .connection-quality {
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        direction: rtl; /* Explicitly set for content */
+    }
+
+    .connection-quality i {
+        font-size: 14px;
+    }
+
+    /* Connection quality colors */
+    .excellent { color: #4CAF50; }
+    .good { color: #8BC34A; }
+    .fair { color: #FFC107; }
+    .poor { color: #FF5722; }
+
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.6; }
+        100% { opacity: 1; }
+    }
+
+    /* Stream Info (bottom-left box) */
+    .stream-info {
+        position: absolute;
+        bottom: 20px;
+        left: 15px;
+        background: rgba(0, 0, 0, 0.6);
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 13px;
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        pointer-events: auto; /* clickable when controls visible */
+        color: white; /* Make text white */
+        direction: rtl; /* Ensure text is RTL */
+    }
+
+    /* Play/Pause Button in Center - fully transparent background */
+    .play-pause-btn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 72px;
+        height: 72px;
+        background: transparent; /* Fully transparent background */
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 32px;
+        z-index: 25;
+        border: none;
+        pointer-events: auto; /* Clickable when controls visible */
+    }
+
+    .play-pause-btn i {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Subtle glow for visibility */
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="iframe-wrapper" id="iframeWrapper">
+  <div id="player"></div>
+</div>
+
+<div class="overlay" id="playerOverlay"></div>
+
+<div class="controls-container" id="controlsContainer">
+  <div class="top-controls">
+    <div class="live-container">
+      <div class="live-badge">LIVE</div> <div class="connection-quality" id="connectionQuality">
+        <i class="fas fa-wifi excellent"></i>
+        <span>جاري قياس الجودة...</span>
+      </div>
+    </div>
+    <button class="back-btn" id="backBtn">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+  </div>
+
+  <button class="play-pause-btn" id="centralPlayPauseBtn">
+      <i class="fas fa-pause"></i> </button>
+
+  <div class="bottom-controls">
+    <button class="control-btn" id="resizeBtn"> <i class="fas fa-expand-alt"></i>
+    </button>
+    <button class="control-btn" id="muteBtn">
       <i class="fas fa-volume-mute"></i>
     </button>
+    </div>
+
+  <div class="stream-info" id="streamInfo">
+      <i class="fas fa-satellite-dish"></i>
+      <span>البث المباشر - سكاي نيوز عربية</span>
+  </div>
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+  let player;
+  let isMuted = true;
+  let isFitted = false; // Changed from isResized to isFitted
+  let isFullscreen = false;
+  let controlsTimeout;
+  let isPlaying = true;
+  let areControlsVisible = false;
+
+  const controlsContainer = document.getElementById('controlsContainer');
+  const muteBtn = document.getElementById('muteBtn');
+  const resizeBtn = document.getElementById('resizeBtn'); // Still referencing resizeBtn
+  const backBtn = document.getElementById('backBtn');
+  const connectionQuality = document.getElementById('connectionQuality');
+  const streamInfo = document.getElementById('streamInfo');
+  const youtubePlayerDiv = document.getElementById('player');
+  const centralPlayPauseBtn = document.getElementById('centralPlayPauseBtn');
+  const playerOverlay = document.getElementById('playerOverlay');
+
+  // Function to show controls and set timeout to hide them
+  function showControls() {
+    controlsContainer.classList.add('show');
+    areControlsVisible = true;
+    clearTimeout(controlsTimeout);
+    controlsTimeout = setTimeout(hideControls, 3000);
+  }
+
+  // Function to hide controls
+  function hideControls() {
+    controlsContainer.classList.remove('show');
+    areControlsVisible = false;
+  }
+
+  // Click listener for the new transparent overlay
+  playerOverlay.addEventListener('click', async (event) => {
+    // If not in fullscreen mode, enter fullscreen
+    if (!isFullscreen) {
+        try {
+            if (document.documentElement.requestFullscreen) {
+                await document.documentElement.requestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+                await document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                await document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) {
+                await document.documentElement.msRequestFullscreen();
+            }
+            if (screen.orientation && screen.orientation.lock) {
+                await screen.orientation.lock('landscape');
+            }
+            // isFullscreen is updated by the 'fullscreenchange' event listener
+        } catch (err) {
+            console.error('Fullscreen API error on overlay click:', err.message);
+        }
+    }
+    // Always show controls on any interaction with the overlay, even if already fullscreen
+    showControls();
+  });
+
+  // YouTube Iframe API Ready
+  function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', {
+      height: '3000',
+      width: '100%',
+      videoId: 'VuYzy8IuT0Y', // Replace with your desired YouTube video ID
+      playerVars: {
+        autoplay: 1,
+        controls: 0, // Use custom controls
+        modestbranding: 1,
+        rel: 0,
+        mute: 1, // Start muted
+        playsinline: 1
+      },
+      events: {
+        onReady: onPlayerReady,
+        onStateChange: onPlayerStateChange
+      }
+    });
+  }
+
+  function onPlayerReady(event) {
+    player.mute();
+    muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+    isMuted = true;
+    isPlaying = true;
+    centralPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+
+    // Show controls initially after player is ready
+    showControls();
+
+    // Event listeners for custom buttons - stopPropagation is CRITICAL here
+    muteBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (isMuted) {
+        player.unMute();
+        muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+      } else {
+        player.mute();
+        muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+      }
+      isMuted = !isMuted;
+      showControls();
+    });
+
+    // --- UPDATED RESIZE BUTTON LOGIC (now 'fitBtn' functionality) ---
+    resizeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const iframe = document.getElementById('player');
+      if (!isFitted) {
+        // حساب عرض مناسب بناءً على ارتفاع iframe الحالي للحفاظ على نسبة 16:9
+        const targetWidth = (window.innerHeight / 9) * 16;
+        iframe.style.width = targetWidth + 'px';
+        iframe.style.left = '50%';
+        iframe.style.transform = 'translate(-50%, -50%)'; // Keep it centered when fitted
+        isFitted = true;
+      } else {
+        // إعادة إلى الوضع الأصلي
+        iframe.style.width = '100%';
+        iframe.style.left = '0';
+        iframe.style.transform = 'translateY(-50%)'; // Original position: 100% width, aligned left, centered vertically
+        isFitted = false;
+      }
+      showControls(); // Keep controls visible after interaction
+    });
+    // --- END UPDATED RESIZE BUTTON LOGIC ---
+
+    backBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        window.location.href = "go:yyff";
+        showControls();
+    });
+
+    centralPlayPauseBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        togglePlayPause();
+        showControls();
+    });
+
+    streamInfo.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showControls();
+    });
+
+    // Initial connection quality check
+    checkRealConnectionQuality();
+    setInterval(checkRealConnectionQuality, 5000);
+    if (navigator.connection) {
+        navigator.connection.addEventListener('change', checkRealConnectionQuality);
+    }
+  }
+
+  function togglePlayPause() {
+      if (isPlaying) {
+          player.pauseVideo();
+      } else {
+          player.playVideo();
+      }
+  }
+
+  function onPlayerStateChange(event) {
+    if (event.data == YT.PlayerState.PLAYING) {
+        isPlaying = true;
+        centralPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    } else if (event.data == YT.PlayerState.PAUSED) {
+        isPlaying = false;
+        centralPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+        showControls();
+    } else if (event.data == YT.PlayerState.BUFFERING) {
+        isPlaying = false;
+        centralPlayPauseBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+        showControls();
+    } else if (event.data == YT.PlayerState.ENDED) {
+        isPlaying = false;
+        centralPlayPauseBtn.innerHTML = '<i class="fas fa-redo"></i>';
+        showControls();
+    }
+  }
+
+  // --- Network Quality Measurement ---
+  function checkRealConnectionQuality() {
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const iconElement = connectionQuality.querySelector('i');
+    const textElement = connectionQuality.querySelector('span');
+
+    let qualityClass = "poor";
+    let qualityText = "اتصال ضعيف";
+    let speed = "N/A";
+
+    if (!connection) {
+      console.log("Network Information API not supported. Simulating quality.");
+      simulateConnectionQuality();
+      return;
+    }
+
+    const downlink = connection.downlink || 0;
+    const rtt = connection.rtt || 0;
+    
+    speed = downlink.toFixed(1);
+
+    if (downlink >= 5 && rtt < 100) {
+      qualityClass = "excellent";
+      qualityText = "اتصال ممتاز";
+    } else if (downlink >= 2 && rtt < 200) {
+      qualityClass = "good";
+      qualityText = "اتصال جيد";
+    } else if (downlink >= 1 && rtt < 300) {
+      qualityClass = "fair";
+      qualityText = "اتصال متوسط";
+    }
+
+    updateQualityDisplay(qualityClass, qualityText, speed);
+  }
+
+  function simulateConnectionQuality() {
+    const qualities = [
+      { class: "excellent", text: "اتصال ممتاز" },
+      { class: "good", text: "اتصال جيد" },
+      { class: "fair", text: "اتصال متوسط" },
+      { class: "poor", text: "اتصال ضعيف" }
+    ];
+
+    const randomQuality = qualities[Math.floor(Math.random() * qualities.length)];
+    const randomSpeed = (Math.random() * 10).toFixed(1);
+
+    updateQualityDisplay(randomQuality.class, randomQuality.text, randomSpeed);
+  }
+
+  function updateQualityDisplay(qualityClass, qualityText, speed) {
+    const iconElement = connectionQuality.querySelector('i');
+    const textElement = connectionQuality.querySelector('span');
+
+    iconElement.className = 'fas fa-wifi ' + qualityClass;
+    textElement.textContent = `${qualityText} (${speed}Mb/s)`;
+  }
+
+  // Handle Fullscreen API events to update isFullscreen state
+  document.addEventListener('fullscreenchange', () => {
+    isFullscreen = !!document.fullscreenElement;
+    showControls();
+  });
+  document.addEventListener('webkitfullscreenchange', () => {
+    isFullscreen = !!document.webkitFullscreenElement;
+    showControls();
+  });
+  document.addEventListener('mozfullscreenchange', () => {
+    isFullscreen = !!document.mozFullScreenElement;
+    showControls();
+  });
+  document.addEventListener('msfullscreenchange', () => {
+    isFullscreen = !!document.msFullscreenElement;
+    showControls();
+  });
+
+</script>
+</body>
+</html>
