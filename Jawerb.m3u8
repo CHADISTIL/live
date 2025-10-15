@@ -7,4 +7,4 @@ https://vo-live.cdb.cdn.orange.com/Content/Channel/MajidChildrenChannel/HLS/inde
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1500000,AVERAGE-BANDWIDTH=1500000,CODECS="avc1.66.30,mp4a.40.2",RESOLUTION=1280x720,FRAME-RATE=25.000,CLOSED-CAPTIONS=NONE
 https://vo-live.cdb.cdn.orange.com/Content/Channel/MajidChildrenChannel/HLS/index.m3u8
 #EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=1500000,AVERAGE-BANDWIDTH=1500000,CODECS="avc1.66.30,mp4a.40.2",RESOLUTION=1920x1080,FRAME-RATE=25.000,CLOSED-CAPTIONS=NONE
-https://vo-live.cdb.cdn.orange.com/Content/Channel/MajidChildrenChannel/HLS/index.m3u8
+https://vo-live.cdb.cdn.orange.com/Content/Channel/MajidChildrenChannel/HLS/index.m3u8 
