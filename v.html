@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>مشغل يوتيوب مدمج</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* المتغيرات الأساسية */
+        :root {
+            --primary-color: #ff375f;
+            --control-height: 70px;
+            --button-bg: rgba(255, 255, 255, 0.2);
+            --live-bg: rgba(255, 0, 0, 0.8);
+        }
+
+        /* إعادة تعيين بسيطة */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* تنسيق الجسم والشاشة */
+        body {
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            touch-action: manipulation;
+            overflow: hidden; 
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 100%;
+            max-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* حاوية الـ iframe - تحل محل الـ <video> */
+        .iframe-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        /* تنسيق iframe يوتيوب مع منطق الكود الأصلي */
+        #youtube-player {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 3000px; 
+            transform: translateY(-50%);
+            border: none;
+            transition: all 0.5s ease;
+        }
+
+        /* الطبقة الشفافة لمعالجة النقر */
+        .click-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10; 
+            cursor: pointer;
+        }
+        
+        /* شريط التحكم السفلي */
+        .controls-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--control-height);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 999999;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            transition: opacity 0.3s;
+        }
+
+        .controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        /* الأزرار */
+        .control-buttons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .control-btn {
+            color: white;
+            background: var(--button-bg);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .control-btn:active {
+            transform: scale(0.9);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* زر الملاءمة/التمطيط - يختفي افتراضياً */
+        .fit-btn {
+            display: none !important; 
+        }
+
+        /* يظهر زر التمطيط فقط في وضع ملء الشاشة الأفقي */
+        .fullscreen.landscape .fit-btn {
+            display: flex !important; 
+        }
+
+        /* شريط التحكم العلوي */
+        .top-controls {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 999999;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+            transition: opacity 0.3s;
+        }
+
+        /* زر الرجوع */
+        .back-btn {
+            color: white;
+            background: var(--button-bg); 
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border: none;
+            transition: background 0.2s;
+            cursor: pointer;
+            z-index: 100;
+            display: none; /* إخفاء افتراضياً */
+        }
+
+        /* إظهار زر الرجوع فقط في وضع ملء الشاشة */
+        .fullscreen .back-btn {
+             display: flex; 
+        }
+
+        .back-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* تصميم علامة LIVE */
+        .live-quality-indicator {
+            background: var(--button-bg);
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            white-space: nowrap;
+            z-index: 100;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #ff0000;
+            border-radius: 50%;
+            animation: pulse-live 1.5s infinite;
+        }
+
+        @keyframes pulse-live {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .quality-text {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ccc;
+        }
+        
+        /* شعار بث مباشر beIN Sports في الأسفل */
+        .beinsports-logo {
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            background: var(--button-bg);
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+        }
+        
+        .beinsports-logo i {
+            font-size: 16px;
+            color: white;
+        }
+
+        /* تأثير النبض المركزي */
+        @keyframes pulse-loading { 
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.4; }
+            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+        }
+        
+        @keyframes pulse-click { 
+             0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+
+        .pulse-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999998;
+            animation: none;
+            display: none; 
+        }
+
+        /* إخفاء عناصر التحكم عند الكسل */
+        .controls-hidden .controls-container,
+        .controls-hidden .top-controls {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container" id="videoContainer">
+        
+        <div class="iframe-wrapper">
+          <div id="youtube-player"></div>
+        </div>
+
+        <div class="click-overlay" id="clickOverlay"></div>
+
+        <div class="pulse-effect" id="pulseEffect"></div>
+        
+        <div class="top-controls" id="topControls">
+            
+            <span class="live-quality-indicator" id="liveQualityIndicator">
+                <span class="live-dot"></span>
+                LIVE 
+                <span class="quality-text" id="qualityText">
+                    جاري القياس... <i class="fas fa-wifi"></i>
+                </span>
+            </span>
+            
+            <button class="back-btn" id="backBtn">
+                <i class="fas fa-times"></i> 
+            </button>
+        </div>
+        
+        <div class="controls-container" id="controlsContainer">
+            <div class="controls-row">
+                
+                <span class="beinsports-logo"><i class="fas fa-satellite-dish"></i>
+                قناة ماجد 
+                </span>
+                
+                <div class="control-buttons">
+                    <button class="control-btn mute-btn" id="muteBtn">
+                        <i class="fas fa-volume-up"></i> 
+                    </button>
+                    <button class="control-btn fit-btn" id="fitBtn">
+                        <i class="fas fa-expand-alt"></i> 
+                    </button>
+                    <button class="control-btn fullscreen-btn" id="fullscreenBtn">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <script>
+        let ytPlayer; 
+        let isMuted = false; 
+        let isFitted = false; 
+        
+        const videoContainer = document.getElementById('videoContainer');
+        const clickOverlay = document.getElementById('clickOverlay');
+        const controlsContainer = document.getElementById('controlsContainer');
+        const topControls = document.getElementById('topControls');
+        const muteBtn = document.getElementById('muteBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const fitBtn = document.getElementById('fitBtn'); 
+        const backBtn = document.getElementById('backBtn');
+        const qualityText = document.getElementById('qualityText'); 
+        const pulseEffect = document.getElementById('pulseEffect');
+        const body = document.body;
+        
+        // ** دالة جديدة لسحب معرف الفيديو من رابط الصفحة (URL) **
+        function getYouTubeVideoId() {
+            // المعرف الافتراضي في حال عدم العثور على المعرف في الرابط
+            const defaultId = 'Evwh2BY9O78'; 
+            try {
+                // استخدام window.location.search للحصول على الجزء الذي يبدأ بعلامة الاستفهام
+                const urlParams = new URLSearchParams(window.location.search);
+                
+                // البحث عن المعرف (v) في الرابط
+                const videoId = urlParams.get('v');
+
+                // إذا وجد المعرف وكان غير فارغ، استخدمه، وإلا استخدم الافتراضي
+                return videoId || defaultId;
+            } catch (e) {
+                console.error("Error parsing URL for video ID:", e);
+                return defaultId;
+            }
+        }
+
+
+        // 1. انيميشن الموجة (Pulse Effect)
+        function showPulseEffect(type = 'click') {
+            pulseEffect.style.display = 'block';
+            pulseEffect.style.animation = 'none';
+            void pulseEffect.offsetWidth; 
+            
+            if (type === 'loading') {
+                pulseEffect.style.animation = 'pulse-loading 1.5s infinite ease-in-out';
+            } else {
+                pulseEffect.style.animation = 'pulse-click 0.6s ease-out forwards';
+                setTimeout(() => {
+                    pulseEffect.style.display = 'none';
+                }, 600);
+            }
+        }
+        
+        function hidePulseEffect() {
+            pulseEffect.style.display = 'none';
+            pulseEffect.style.animation = 'none';
+        }
+
+        // **وظيفة تهيئة لاعب يوتيوب**
+        function onYouTubeIframeAPIReady() {
+            const videoIdFromUrl = getYouTubeVideoId(); // سحب المعرف من الرابط
+            
+            ytPlayer = new YT.Player('youtube-player', {
+                height: '3000',
+                width: '100%',
+                videoId: videoIdFromUrl, // استخدام المعرف المسحوب
+                playerVars: {
+                    autoplay: 1,
+                    controls: 0, 
+                    modestbranding: 1,
+                    rel: 0,
+                    mute: 0, 
+                    playsinline: 1
+                },
+                events: {
+                    onReady: onPlayerReady,
+                    onStateChange: onPlayerStateChange
+                }
+            });
+            showPulseEffect('loading'); 
+        }
+        
+        // **معالج تغيير حالة اللاعب**
+        function onPlayerStateChange(event) {
+            // 1 = PLAYING
+            if (event.data === 1) { 
+                hidePulseEffect(); 
+                showControls();
+            } 
+            // 2 = PAUSED
+            else if (event.data === 2) { 
+                showControls();
+            }
+             // 3 = BUFFERING
+            else if (event.data === 3) { 
+                 showPulseEffect('loading'); 
+            }
+        }
+
+        // **عندما يكون اللاعب جاهزًا**
+        function onPlayerReady(event) {
+            
+            if (event.target.isMuted()) {
+                event.target.unMute();
+            } 
+            
+            isMuted = event.target.isMuted();
+            muteBtn.innerHTML = isMuted ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
+            fitBtn.innerHTML = '<i class="fas fa-expand-alt"></i>';
+            
+            event.target.playVideo();
+        }
+
+        // 2. التحكم بالتشغيل/الإيقاف من خلال النقر مع انيميشن الموجة
+        function togglePlayPause() {
+            if (!ytPlayer) return;
+            
+            const state = ytPlayer.getPlayerState();
+            if (state === 1) { 
+                ytPlayer.pauseVideo();
+            } else { 
+                ytPlayer.playVideo();
+            }
+            showPulseEffect('click'); 
+            showControls(); 
+        }
+
+        clickOverlay.addEventListener('click', function(e) {
+            if (!e.target.closest('.controls-container, .top-controls')) {
+                togglePlayPause();
+            }
+        });
+
+        // 3. زر كتم الصوت
+        muteBtn.addEventListener('click', () => {
+            if (!ytPlayer) return;
+            
+            if (isMuted) {
+                ytPlayer.unMute();
+                muteBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                isMuted = false;
+            } else {
+                ytPlayer.mute();
+                muteBtn.innerHTML = '<i class="fas fa-volume-mute"></i>';
+                isMuted = true;
+            }
+            showControls();
+        });
+        
+        // 4. دالة التحقق من الاتجاه
+        function checkOrientation() {
+            if (document.fullscreenElement) {
+                if (screen.orientation && screen.orientation.type.includes('landscape')) {
+                    body.classList.add('landscape');
+                } else if (window.innerWidth > window.innerHeight) {
+                    body.classList.add('landscape');
+                } else {
+                    body.classList.remove('landscape');
+                }
+            }
+        }
+
+        // 5. زر ملء الشاشة
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                videoContainer.requestFullscreen()
+                    .then(() => {
+                        body.classList.add('fullscreen');
+                        checkOrientation();
+                        if (screen.orientation && screen.orientation.lock) {
+                            screen.orientation.lock('landscape').catch(e => {});
+                        }
+                    })
+                    .catch(err => {
+                        alert('فشل الدخول في وضع ملء الشاشة: ' + err.message);
+                    });
+            } else {
+                document.exitFullscreen()
+                    .then(() => {
+                        body.classList.remove('fullscreen', 'landscape');
+                        if (isFitted) {
+                           applyFitToggle(); 
+                        }
+                    });
+            }
+        });
+        
+        document.addEventListener('fullscreenchange', function() {
+            if (!document.fullscreenElement) {
+                fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                body.classList.remove('fullscreen', 'landscape');
+                if (isFitted) {
+                    applyFitToggle();
+                }
+            } else {
+                fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                body.classList.add('fullscreen');
+                checkOrientation();
+            }
+        });
+
+        window.addEventListener('orientationchange', checkOrientation);
+        window.addEventListener('resize', checkOrientation);
+
+
+        // 6. زر الملاءمة/التمطيط 
+        function applyFitToggle() {
+            const iframe = document.getElementById('youtube-player');
+            if (!isFitted) {
+                const targetWidth = (window.innerHeight / 9) * 16;
+                iframe.style.width = targetWidth + 'px';
+                iframe.style.left = '50%';
+                iframe.style.transform = 'translate(-50%, -50%)'; 
+                fitBtn.innerHTML = '<i class="fas fa-compress-alt"></i>';
+            } else {
+                iframe.style.width = '100%';
+                iframe.style.left = '0';
+                iframe.style.transform = 'translateY(-50%)';
+                fitBtn.innerHTML = '<i class="fas fa-expand-alt"></i>';
+            }
+            isFitted = !isFitted;
+        }
+        
+        fitBtn.addEventListener('click', applyFitToggle);
+
+        // 7. زر الرجوع التلقائي (الإغلاق)
+        backBtn.addEventListener('click', function() {
+            window.location.href = 'go:yyff';
+        });
+
+        // 8. إظهار/إخفاء عناصر التحكم
+        let controlsTimeout;
+        function hideControls() {
+            controlsTimeout = setTimeout(() => {
+                if (ytPlayer && ytPlayer.getPlayerState() === 1) { // 1 = PLAYING
+                    controlsContainer.style.opacity = '0';
+                    topControls.style.opacity = '0';
+                    body.classList.add('controls-hidden');
+                }
+            }, 3000);
+        }
+
+        function showControls() {
+            clearTimeout(controlsTimeout);
+            controlsContainer.style.opacity = '1';
+            topControls.style.opacity = '1';
+            body.classList.remove('controls-hidden');
+            hideControls();
+        }
+
+        clickOverlay.addEventListener('touchstart', showControls);
+        clickOverlay.addEventListener('mousemove', showControls);
+        showControls(); 
+
+        // 9. وظائف قياس السرعة 
+        
+        const TEST_FILE_URL = 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Test_Image_50KB.png';
+        const FILE_SIZE_BYTES = 50 * 1024; // 50 KB
+
+        function updateQualityDisplay(quality, speedText = '') {
+            let text = '';
+            let icon = '<i class="fas fa-wifi"></i>';
+            let iconColor = '';
+            const displaySpeed = speedText ? ` (${speedText})` : '';
+
+            switch(quality) {
+                case 'low': text = 'اتصال ضعيف'; iconColor = '#ff375f'; break;
+                case 'medium': text = 'اتصال مقبول'; iconColor = 'orange'; break;
+                case 'high': text = 'اتصال جيد'; iconColor = '#00cc00'; break;
+                default: text = 'جاري القياس...'; iconColor = '#ccc'; break;
+            }
+            
+            qualityText.innerHTML = `${text}${displaySpeed} <span style="color: ${iconColor};">${icon}</span>`;
+        }
+
+        async function testDownloadSpeed() {
+            const url = `${TEST_FILE_URL}?time=${new Date().getTime()}`;
+            const startTime = performance.now();
+            
+            try {
+                await fetch(url);
+                const endTime = performance.now();
+                const durationMs = endTime - startTime;
+
+                const speedBps = (FILE_SIZE_BYTES * 8) / (durationMs / 1000);
+                const speedMbps = (speedBps / 1024 / 1024).toFixed(1); 
+
+                let quality = 'medium';
+                if (speedMbps > 2.0) { quality = 'high';
+                } else if (speedMbps > 0.5) { quality = 'medium';
+                } else { quality = 'low'; }
+                
+                updateQualityDisplay(quality, `${speedMbps} Mbps`);
+
+            } catch (error) {
+                updateQualityDisplay('low', '0.0 Mbps');
+            }
+        }
+
+        updateQualityDisplay('unknown'); 
+        testDownloadSpeed(); 
+        setInterval(testDownloadSpeed, 5000);
+    </script>
+</body>
+</html>
